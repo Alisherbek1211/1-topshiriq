@@ -1,15 +1,32 @@
 import datetime
+from uuid import uuid4
 
 from django.utils import timezone
-from telegram import ParseMode, Update
+from telegram import InlineQueryResultArticle, InputTextMessageContent, ParseMode, Update
 from telegram.ext import CallbackContext
 
 from tgbot.handlers.onboarding import static_text
 from tgbot.handlers.utils.info import extract_user_data_from_update
-from tgbot.models import User
+from tgbot.models import Post, User
 from tgbot.handlers.onboarding.keyboards import make_keyboard_for_start_command
 
 
+def inlinequery(update: Update, context: CallbackContext) -> None:
+    """Handle the inline query."""
+    query = update.inline_query.query
+
+    if query == "":
+        return
+
+    results = [
+        InlineQueryResultArticle(
+            id=post.id,  
+            title=post.title, 
+            url = post.image,
+            thumb_url=post.image,
+            description=post.content, 
+            input_message_content=InputTextMessageContent(message_text=f"{post.content}\n{post.image}", parse_mode=None)) for post in Post.objects.filter(title__icontains=query)]
+    update.inline_query.answer(results)
 def command_start(update: Update, context: CallbackContext) -> None:
     u, created = User.get_user_and_created(update, context)
 

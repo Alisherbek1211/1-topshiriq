@@ -10,7 +10,7 @@ from telegram import Bot, Update, BotCommand
 from telegram.ext import (
     Updater, Dispatcher, Filters,
     CommandHandler, MessageHandler,
-    CallbackQueryHandler,
+    CallbackQueryHandler,InlineQueryHandler
 )
 
 from dtb.celery import app  # event processing in async mode
@@ -30,6 +30,7 @@ def setup_dispatcher(dp):
     """
     Adding handlers for events from Telegram
     """
+    dp.add_handler(InlineQueryHandler(onboarding_handlers.inlinequery))
     # onboarding
     dp.add_handler(CommandHandler("start", onboarding_handlers.command_start))
 
@@ -37,6 +38,7 @@ def setup_dispatcher(dp):
     dp.add_handler(CommandHandler("admin", admin_handlers.admin))
     dp.add_handler(CommandHandler("stats", admin_handlers.stats))
     dp.add_handler(CommandHandler('export_users', admin_handlers.export_users))
+
 
     # location
     dp.add_handler(CommandHandler("ask_location", location_handlers.ask_for_location))
